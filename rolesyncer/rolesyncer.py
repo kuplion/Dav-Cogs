@@ -11,7 +11,7 @@ _ = Translator("RoleSyncer", __file__)
 class RoleSyncer(commands.Cog):
     """Sync Roles"""
 
-    __version__ = "2.0.3"
+    __version__ = "2.1.0"
 
     def format_help_for_context(self, ctx: commands.Context) -> str:
         # Thanks Sinbad! And Trusty in whose cogs I found this.
@@ -96,6 +96,7 @@ class RoleSyncer(commands.Cog):
                         self.log.exception(exception, exc_info=True)
 
     @commands.bot_has_permissions(manage_roles=True)
+    @commands.guild_only()
     @commands.group(name="sync")
     async def rolesyncer(self, ctx):
         """Sync roles"""
@@ -126,6 +127,72 @@ class RoleSyncer(commands.Cog):
                 role1name=role1.name, role2name=role2.name
             )
         )
+    
+    @rolesyncer.command()
+    @commands.admin()
+    async def apply(self,ctx):
+        """(Retroactively) Apply current sync settings to all members"""
+        await ctx.send(_("Applying one way sync..."))
+        settings = await self.config.guild(ctx.guild).all()
+        
+        for roles in settings["onesync"]:
+            role1 = ctx.guild.get_role(roles[0])
+            role2 = ctx.guild.get_role(roles[1])
+            await ctx.send(_("Applying sync {r1name} -> {r2name}").format(r1name=role1.name,r2name=role2.name))
+            for member in role1.members:
+                if role2 not in member.roles:
+                    try:
+                        await member.add_roles(
+                            role2,
+                            reason=_("One-way rolesync / {r1name} -> {r2name} ").format(r1name=role1.name,r2name=role2.name),
+                        )
+                    except discord.Forbidden as f_to_pay_respect:
+                        self.log.warning(
+                            "Couldn't assign %s to %s. Missing permissions.\n%s",
+                            role2.name,
+                            member.name,
+                            f_to_pay_respect,
+                        )
+                    except discord.HTTPException as exception:
+                        self.log.exception(exception, exc_info=True)
+        await ctx.send(_("Applying two way sync..."))
+        for roles in settings["twosync"]:
+            role1 = ctx.guild.get_role(roles[0])
+            role2 = ctx.guild.get_role(roles[1])
+            await ctx.send(_("Applying sync {r1name} <-> {r2name}").format(r1name=role1.name,r2name=role2.name))
+            for member in role1.members:
+                if role2 not in member.roles:
+                    try:
+                        await member.add_roles(
+                            role2,
+                            reason=_("Two-way rolesync / {r1name} <-> {r2name} ").format(r1name=role1.name,r2name=role2.name),
+                        )
+                    except discord.Forbidden as f_to_pay_respect:
+                        self.log.warning(
+                            "Couldn't assign %s to %s. Missing permissions.\n%s",
+                            role2.name,
+                            member.name,
+                            f_to_pay_respect,
+                        )
+                    except discord.HTTPException as exception:
+                        self.log.exception(exception, exc_info=True)
+            for member in role2.members:
+                if role1 not in member.roles:
+                    try:
+                        await member.add_roles(
+                            role1,
+                            reason=_("Two-way rolesync / {r2name} <-> {r1name} ").format(r1name=role1.name,r2name=role2.name),
+                        )
+                    except discord.Forbidden as f_to_pay_respect:
+                        self.log.warning(
+                            "Couldn't assign %s to %s. Missing permissions.\n%s",
+                            role1.name,
+                            member.name,
+                            f_to_pay_respect,
+                        )
+                    except discord.HTTPException as exception:
+                        self.log.exception(exception, exc_info=True)
+
 
     @commands.group()
     @commands.admin()
