@@ -42,7 +42,10 @@ class ExclusiveRoles(commands.Cog):
                     if None in [r1, r2]:
                         self.log.warning(
                             "Role with ID %s or %s was deleted from the guild %s (%s). Removing config entry.",
-                            r[0], r[1], guild.name, guild.id,
+                            r[0],
+                            r[1],
+                            guild.name,
+                            guild.id,
                         )
                         to_remove.append(r)
                         continue
@@ -61,7 +64,7 @@ class ExclusiveRoles(commands.Cog):
                 self.log.exception(e, exc_info=True)
 
     @commands.Cog.listener()
-    async def on_guild_role_delete(self,role:discord.Role):
+    async def on_guild_role_delete(self, role: discord.Role):
         async with self.config.guild(role.guild).exclusives() as conf:
             to_remove = []
             for exclusive_pair in conf:
@@ -69,8 +72,12 @@ class ExclusiveRoles(commands.Cog):
                     to_remove.append(exclusive_pair)
             for exclusive_pair in to_remove:
                 conf.remove(exclusive_pair)
-                self.log.warning("Removed exclusive pair with role IDs %s from guild %s (%s)",exclusive_pair, role.guild.name, role.guild.id)
-
+                self.log.warning(
+                    "Removed exclusive pair with role IDs %s from guild %s (%s)",
+                    exclusive_pair,
+                    role.guild.name,
+                    role.guild.id,
+                )
 
     @commands.command()
     @commands.admin()
@@ -163,7 +170,10 @@ class ExclusiveRoles(commands.Cog):
                     self.log.warning(
                         "One of the roles(%s,%s) was deleted "
                         "from the guild %s (%s). Removing config entry.",
-                        r[0], r[1], ctx.guild.name, ctx.guild.id,
+                        r[0],
+                        r[1],
+                        ctx.guild.name,
+                        ctx.guild.id,
                     )
                     roles.remove(r)
                     await self.config.guild(ctx.guild).exclusives.set(roles)

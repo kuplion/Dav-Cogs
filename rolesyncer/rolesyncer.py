@@ -11,7 +11,7 @@ _ = Translator("RoleSyncer", __file__)
 class RoleSyncer(commands.Cog):
     """Sync Roles"""
 
-    __version__ = "2.1.0"
+    __version__ = "2.1.1"
 
     def format_help_for_context(self, ctx: commands.Context) -> str:
         # Thanks Sinbad! And Trusty in whose cogs I found this.
@@ -127,25 +127,32 @@ class RoleSyncer(commands.Cog):
                 role1name=role1.name, role2name=role2.name
             )
         )
-    
+
     @rolesyncer.command()
     @commands.admin()
-    async def apply(self,ctx):
+    async def apply(self, ctx):
         """(Retroactively) Apply current sync settings to all members"""
         await ctx.send(_("Applying one way sync..."))
         settings = await self.config.guild(ctx.guild).all()
-        
+        counter = 0
         for roles in settings["onesync"]:
             role1 = ctx.guild.get_role(roles[0])
             role2 = ctx.guild.get_role(roles[1])
-            await ctx.send(_("Applying sync {r1name} -> {r2name}").format(r1name=role1.name,r2name=role2.name))
+            await ctx.send(
+                _("Applying sync {r1name} -> {r2name}").format(
+                    r1name=role1.name, r2name=role2.name
+                )
+            )
             for member in role1.members:
                 if role2 not in member.roles:
                     try:
                         await member.add_roles(
                             role2,
-                            reason=_("One-way rolesync / {r1name} -> {r2name} ").format(r1name=role1.name,r2name=role2.name),
+                            reason=_("One-way rolesync / {r1name} -> {r2name} ").format(
+                                r1name=role1.name, r2name=role2.name
+                            ),
                         )
+                        counter += 1
                     except discord.Forbidden as f_to_pay_respect:
                         self.log.warning(
                             "Couldn't assign %s to %s. Missing permissions.\n%s",
@@ -159,14 +166,21 @@ class RoleSyncer(commands.Cog):
         for roles in settings["twosync"]:
             role1 = ctx.guild.get_role(roles[0])
             role2 = ctx.guild.get_role(roles[1])
-            await ctx.send(_("Applying sync {r1name} <-> {r2name}").format(r1name=role1.name,r2name=role2.name))
+            await ctx.send(
+                _("Applying sync {r1name} <-> {r2name}").format(
+                    r1name=role1.name, r2name=role2.name
+                )
+            )
             for member in role1.members:
                 if role2 not in member.roles:
                     try:
                         await member.add_roles(
                             role2,
-                            reason=_("Two-way rolesync / {r1name} <-> {r2name} ").format(r1name=role1.name,r2name=role2.name),
+                            reason=_("Two-way rolesync / {r1name} <-> {r2name} ").format(
+                                r1name=role1.name, r2name=role2.name
+                            ),
                         )
+                        counter += 1
                     except discord.Forbidden as f_to_pay_respect:
                         self.log.warning(
                             "Couldn't assign %s to %s. Missing permissions.\n%s",
@@ -181,8 +195,11 @@ class RoleSyncer(commands.Cog):
                     try:
                         await member.add_roles(
                             role1,
-                            reason=_("Two-way rolesync / {r2name} <-> {r1name} ").format(r1name=role1.name,r2name=role2.name),
+                            reason=_("Two-way rolesync / {r2name} <-> {r1name} ").format(
+                                r1name=role1.name, r2name=role2.name
+                            ),
                         )
+                        counter += 1
                     except discord.Forbidden as f_to_pay_respect:
                         self.log.warning(
                             "Couldn't assign %s to %s. Missing permissions.\n%s",
@@ -192,7 +209,7 @@ class RoleSyncer(commands.Cog):
                         )
                     except discord.HTTPException as exception:
                         self.log.exception(exception, exc_info=True)
-
+        await ctx.send(_("Done (Applied {count} roles)").format(count=counter))
 
     @commands.group()
     @commands.admin()
