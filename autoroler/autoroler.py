@@ -31,7 +31,8 @@ class AutoRoler(commands.Cog):
     async def on_member_join(self, member):
         data = await self.config.guild(member.guild).all()
         if not data["enabled"]:
-            return
+            return        
+        await asyncio.sleep(300)
         await member.add_roles(*[member.guild.get_role(role_id) for role_id in data["roles"]])
 
     @commands.group()
