@@ -196,6 +196,47 @@ class Botstatus(commands.Cog):
             await ctx.send(_("Status set to ``Offline | Watching {text}``").format(text=text))
 
     @botstatus.group()
+    async def custom(self, ctx):
+        """Set a custom status"""
+        pass
+
+    @custom.command(name="online")
+    async def c_online(self, ctx, *, text: str):
+        if len(text) > 128:
+            await ctx.send(_("The character limit for status messages is 128."))
+        else:
+            await self.config.status.set(("custom", "online", text))
+            await self.setfunc("custom", "online", text)
+            await ctx.send(_("Status set to ``Online | Custom {text}``").format(text=text))
+
+    @custom.command(name="away")
+    async def c_away(self, ctx, *, text: str):
+        if len(text) > 128:
+            await ctx.send(_("The character limit for status messages is 128."))
+        else:
+            await self.config.status.set(("custom", "away", text))
+            await self.setfunc("custom", "away", text)
+            await ctx.send(_("Status set to ``Away | Custom {text}``").format(text=text))
+
+    @custom.command(name="dnd")
+    async def c_dnd(self, ctx, *, text: str):
+        if len(text) > 128:
+            await ctx.send(_("The character limit for status messages is 128."))
+        else:
+            await self.config.status.set(("custom", "dnd", text))
+            await self.setfunc("custom", "dnd", text)
+            await ctx.send(_("Status set to ``DND | Custom {text}``").format(text=text))
+
+    @custom.command(name="offline")
+    async def c_offline(self, ctx, *, text: str):
+        if len(text) > 128:
+            await ctx.send(_("The character limit for status messages is 128."))
+        else:
+            await self.config.status.set(("custom", "offline", text))
+            await self.setfunc("custom", "offline", text)
+            await ctx.send(_("Status set to ``Offline | Custom {text}``").format(text=text))
+
+    @botstatus.group()
     async def competing(self, ctx):
         """Set a competing status"""
         pass
