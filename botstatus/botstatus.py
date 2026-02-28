@@ -201,7 +201,7 @@ class Botstatus(commands.Cog):
         pass
 
     @custom.command(name="online")
-    async def c_online(self, ctx, *, text: str):
+    async def cu_online(self, ctx, *, text: str):
         if len(text) > 128:
             await ctx.send(_("The character limit for status messages is 128."))
         else:
@@ -210,7 +210,7 @@ class Botstatus(commands.Cog):
             await ctx.send(_("Status set to ``Online | Custom {text}``").format(text=text))
 
     @custom.command(name="away")
-    async def c_away(self, ctx, *, text: str):
+    async def cu_away(self, ctx, *, text: str):
         if len(text) > 128:
             await ctx.send(_("The character limit for status messages is 128."))
         else:
@@ -219,7 +219,7 @@ class Botstatus(commands.Cog):
             await ctx.send(_("Status set to ``Away | Custom {text}``").format(text=text))
 
     @custom.command(name="dnd")
-    async def c_dnd(self, ctx, *, text: str):
+    async def cu_dnd(self, ctx, *, text: str):
         if len(text) > 128:
             await ctx.send(_("The character limit for status messages is 128."))
         else:
@@ -228,7 +228,7 @@ class Botstatus(commands.Cog):
             await ctx.send(_("Status set to ``DND | Custom {text}``").format(text=text))
 
     @custom.command(name="offline")
-    async def c_offline(self, ctx, *, text: str):
+    async def cu_offline(self, ctx, *, text: str):
         if len(text) > 128:
             await ctx.send(_("The character limit for status messages is 128."))
         else:
